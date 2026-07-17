@@ -1,17 +1,12 @@
-package com.example.training.incident_management.model;
+package com.example.training.incident_management.dto;
 
 import java.time.LocalDateTime;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.example.training.incident_management.model.IncidentPriority;
+import com.example.training.incident_management.model.IncidentStatus;
 
-@Entity
-public class Incident {
+public class IncidentResponse {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String title;
@@ -30,24 +25,7 @@ public class Incident {
 
     private LocalDateTime updatedAt;
 
-    public Incident() {
-    }
-
-    public Incident(Long id,
-                    String title,
-                    String description,
-                    IncidentStatus status,
-                    IncidentPriority priority,
-                    String assignee,
-                    LocalDateTime occurredAt) {
-
-        this.id = id;
-        this.title = title;
-        this.description = description;
-        this.status = status;
-        this.priority = priority;
-        this.assignee = assignee;
-        this.occurredAt = occurredAt;
+    public IncidentResponse() {
     }
 
     public Long getId() {
@@ -120,5 +98,20 @@ public class Incident {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    @Override
+    public String toString() {
+        return "IncidentResponse{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", status=" + status +
+                ", priority=" + priority +
+                ", assignee='" + assignee + '\'' +
+                ", occurredAt=" + occurredAt +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
     }
 }
