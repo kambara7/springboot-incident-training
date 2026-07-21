@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.example.training.incident_management.dto.IncidentCreateRequest;
 import com.example.training.incident_management.dto.IncidentResponse;
 import com.example.training.incident_management.dto.IncidentUpdateRequest;
+import com.example.training.incident_management.exception.IncidentNotFoundException;
 import com.example.training.incident_management.model.Incident;
 import com.example.training.incident_management.model.IncidentStatus;
 import com.example.training.incident_management.repository.IncidentRepository;
@@ -31,7 +32,9 @@ public class IncidentService {
     public Incident findById(Long id) {
 
         return incidentRepository.findById(id)
-                .orElse(null);
+                .orElseThrow(() ->
+                        new IncidentNotFoundException(
+                                "インシデントが存在しません。id=" + id));
     }
 
     public IncidentResponse create(IncidentCreateRequest request) {
