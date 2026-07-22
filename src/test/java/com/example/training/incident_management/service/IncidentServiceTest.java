@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.AfterEach;
@@ -14,9 +15,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 import com.example.training.incident_management.dto.IncidentCreateRequest;
 import com.example.training.incident_management.dto.IncidentResponse;
+import com.example.training.incident_management.dto.IncidentUpdateRequest;
 import com.example.training.incident_management.exception.IncidentNotFoundException;
 import com.example.training.incident_management.model.Incident;
 import com.example.training.incident_management.model.IncidentPriority;
@@ -184,5 +189,74 @@ class IncidentServiceTest {
                 never()).deleteById(anyLong());
 
         System.out.println("削除対象なし確認OK");
+    }
+    
+    @Test
+    void 不具合B_更新時_updatedAt更新_更新日時変更() {
+
+        LocalDateTime originalTime =
+                LocalDateTime.of(
+                        2026,
+                        7,
+                        22,
+                        10,
+                        0);
+
+        Incident incident = new Incident();
+
+        incident.setId(1L);
+        incident.setTitle("Before");
+        incident.setUpdatedAt(originalTime);
+
+        when(incidentRepository.findById(1L))
+                .thenReturn(Optional.of(incident));
+
+        when(incidentRepository.save(any()))
+                .thenAnswer(invocation ->
+                        invocation.getArgument(0));
+
+        IncidentUpdateRequest request =
+                new IncidentUpdateRequest();
+
+        request.setTitle("After");
+        request.setDescription("Updated");
+        request.setStatus(
+                IncidentStatus.IN_PROGRESS);
+        request.setPriority(
+                IncidentPriority.HIGH);
+        request.setAssignee("sato");
+        request.setOccurredAt(
+                LocalDateTime.now());
+
+        incidentService.update(1L, request);
+
+        assertTrue(
+                incident.getUpdatedAt()
+                        .isAfter(originalTime));
+    }
+    @Test
+    void 不具合A_存在しない担当者_検索_0件返却() {
+
+        Page<Incident> emptyPage =
+                new PageImpl<>(
+                        List.of());
+
+        when(
+            incidentRepository
+                .findByAssigneeContainingIgnoreCase(
+                        "XXXXX",
+                        PageRequest.of(0, 20)))
+                .thenReturn(emptyPage);
+
+        Page<Incident> result =
+                incidentService.findAll(
+                        null,
+                        "XXXXX",
+                        PageRequest.of(0, 20));
+
+        assertNotNull(result);
+        assertEquals(
+                0,
+                result.getTotalElements());
     }
 }

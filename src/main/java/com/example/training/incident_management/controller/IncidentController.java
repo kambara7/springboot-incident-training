@@ -17,6 +17,8 @@ import com.example.training.incident_management.dto.IncidentCreateRequest;
 import com.example.training.incident_management.dto.IncidentResponse;
 import com.example.training.incident_management.dto.IncidentUpdateRequest;
 import com.example.training.incident_management.model.Incident;
+import com.example.training.incident_management.model.IncidentPriority;
+import com.example.training.incident_management.model.IncidentStatus;
 import com.example.training.incident_management.service.IncidentService;
 
 import jakarta.validation.Valid;
@@ -37,14 +39,29 @@ public class IncidentController {
             produces = "application/json;charset=UTF-8"
     )
     public Page<Incident> findAll(
+
             @RequestParam(required = false)
             String title,
+
+            @RequestParam(required = false)
+            String assignee,
+
+            @RequestParam(required = false)
+            IncidentStatus status,
+
+            @RequestParam(required = false)
+            IncidentPriority priority,
+
             Pageable pageable) {
 
         return incidentService.findAll(
                 title,
+                assignee,
+                status,
+                priority,
                 pageable);
     }
+
 
     @GetMapping(
             value = "/api/incidents/{id}",

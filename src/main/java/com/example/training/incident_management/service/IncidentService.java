@@ -1,5 +1,6 @@
 package com.example.training.incident_management.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -11,6 +12,7 @@ import com.example.training.incident_management.dto.IncidentResponse;
 import com.example.training.incident_management.dto.IncidentUpdateRequest;
 import com.example.training.incident_management.exception.IncidentNotFoundException;
 import com.example.training.incident_management.model.Incident;
+import com.example.training.incident_management.model.IncidentPriority;
 import com.example.training.incident_management.model.IncidentStatus;
 import com.example.training.incident_management.repository.IncidentRepository;
 
@@ -74,6 +76,9 @@ public class IncidentService {
         incident.setAssignee(request.getAssignee());
         incident.setOccurredAt(request.getOccurredAt());
 
+        // Defect B Fix
+        incident.setUpdatedAt(LocalDateTime.now());
+
         Incident savedIncident =
                 incidentRepository.save(incident);
 
@@ -108,15 +113,74 @@ public class IncidentService {
     
     public Page<Incident> findAll(
             String title,
+            String assignee,
             Pageable pageable) {
 
-        if (title == null || title.isBlank()) {
-            return incidentRepository.findAll(pageable);
+        if (title != null && !title.isBlank()) {
+
+            return incidentRepository
+                    .findByTitleContainingIgnoreCase(
+                            title,
+                            pageable);
         }
 
-        return incidentRepository
-                .findByTitleContainingIgnoreCase(
-                        title,
-                        pageable);
+        if (assignee != null
+                && !assignee.isBlank()) {
+
+        	Page<Incident> result =
+        	        incidentRepository
+        	                .findByAssigneeContainingIgnoreCase(
+        	                        assignee,
+        	                        pageable);
+
+        	return result;
+        }
+
+        return incidentRepository.findAll(
+                pageable);
     }
+    
+    public Page<Incident> findAll(
+            String title,
+            String assignee,
+            IncidentStatus status,
+            IncidentPriority priority,
+            Pageable pageable) {
+
+        if (title != null && !title.isBlank()) {
+
+            return incidentRepository
+                    .findByTitleContainingIgnoreCase(
+                            title,
+                            pageable);
+        }
+
+        if (assignee != null && !assignee.isBlank()) {
+
+            return incidentRepository
+                    .findByAssigneeContainingIgnoreCase(
+                            assignee,
+                            pageable);
+        }
+
+        // Defect C
+        if (status != null) {
+
+            return incidentRepository
+                    .findByStatus(
+                            status,
+                            pageable);
+        }
+
+        if (priority != null) {
+
+            return incidentRepository
+                    .findByPriority(
+                            priority,
+                            pageable);
+        }
+
+        return incidentRepository.findAll(pageable);
+    }
+
 }
