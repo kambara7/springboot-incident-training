@@ -3,6 +3,8 @@ package com.example.training.incident_management.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,15 +21,21 @@ import com.example.training.incident_management.repository.IncidentRepository;
 @Service
 public class IncidentService {
 
+    private static final Logger log =
+            LoggerFactory.getLogger(
+                    IncidentService.class);
+
     private final IncidentRepository incidentRepository;
 
     public IncidentService(
             IncidentRepository incidentRepository) {
 
-        this.incidentRepository = incidentRepository;
+        this.incidentRepository =
+                incidentRepository;
     }
 
     public List<Incident> findAll() {
+
         return incidentRepository.findAll();
     }
 
@@ -39,7 +47,12 @@ public class IncidentService {
                                 "インシデントが存在しません。id=" + id));
     }
 
-    public IncidentResponse create(IncidentCreateRequest request) {
+    public IncidentResponse create(
+            IncidentCreateRequest request) {
+
+        log.info(
+                "登録開始 status={}",
+                IncidentStatus.OPEN);
 
         Incident incident = new Incident();
 
@@ -54,18 +67,55 @@ public class IncidentService {
         Incident savedIncident =
                 incidentRepository.save(incident);
 
+        log.info(
+                "登録完了 incidentId={} status={}",
+                savedIncident.getId(),
+                savedIncident.getStatus());
+
         return toResponse(savedIncident);
     }
     
+//    //ERROR試験用
+//    public IncidentResponse create(
+//            IncidentCreateRequest request) {
+//
+//        log.info(
+//                "登録開始 status={}",
+//                IncidentStatus.OPEN);
+//
+//        try {
+//
+//            throw new RuntimeException(
+//                    "ログ確認用例外");
+//
+//        } catch (Exception e) {
+//
+//            log.error(
+//                    "登録失敗",
+//                    e);
+//
+//            throw e;
+//        }
+//    }
+
     public IncidentResponse update(
             Long id,
             IncidentUpdateRequest request) {
+
+        log.info(
+                "更新開始 incidentId={}",
+                id);
 
         Incident incident =
                 incidentRepository.findById(id)
                         .orElse(null);
 
         if (incident == null) {
+
+            log.warn(
+                    "更新対象なし incidentId={}",
+                    id);
+
             return null;
         }
 
@@ -82,23 +132,43 @@ public class IncidentService {
         Incident savedIncident =
                 incidentRepository.save(incident);
 
+        log.info(
+                "更新完了 incidentId={} status={}",
+                savedIncident.getId(),
+                savedIncident.getStatus());
+
         return toResponse(savedIncident);
     }
-    
+
     public boolean delete(Long id) {
 
+        log.info(
+                "削除開始 incidentId={}",
+                id);
+
         if (!incidentRepository.existsById(id)) {
+
+            log.warn(
+                    "削除対象なし incidentId={}",
+                    id);
+
             return false;
         }
 
         incidentRepository.deleteById(id);
 
+        log.info(
+                "削除完了 incidentId={} result=success",
+                id);
+
         return true;
     }
 
-    private IncidentResponse toResponse(Incident incident) {
+    private IncidentResponse toResponse(
+            Incident incident) {
 
-        IncidentResponse response = new IncidentResponse();
+        IncidentResponse response =
+                new IncidentResponse();
 
         response.setId(incident.getId());
         response.setTitle(incident.getTitle());
@@ -110,13 +180,14 @@ public class IncidentService {
 
         return response;
     }
-    
+
     public Page<Incident> findAll(
             String title,
             String assignee,
             Pageable pageable) {
 
-        if (title != null && !title.isBlank()) {
+        if (title != null
+                && !title.isBlank()) {
 
             return incidentRepository
                     .findByTitleContainingIgnoreCase(
@@ -127,19 +198,16 @@ public class IncidentService {
         if (assignee != null
                 && !assignee.isBlank()) {
 
-        	Page<Incident> result =
-        	        incidentRepository
-        	                .findByAssigneeContainingIgnoreCase(
-        	                        assignee,
-        	                        pageable);
-
-        	return result;
+            return incidentRepository
+                    .findByAssigneeContainingIgnoreCase(
+                            assignee,
+                            pageable);
         }
 
-        return incidentRepository.findAll(
-                pageable);
+        return incidentRepository
+                .findAll(pageable);
     }
-    
+
     public Page<Incident> findAll(
             String title,
             String assignee,
@@ -147,7 +215,8 @@ public class IncidentService {
             IncidentPriority priority,
             Pageable pageable) {
 
-        if (title != null && !title.isBlank()) {
+        if (title != null
+                && !title.isBlank()) {
 
             return incidentRepository
                     .findByTitleContainingIgnoreCase(
@@ -155,7 +224,8 @@ public class IncidentService {
                             pageable);
         }
 
-        if (assignee != null && !assignee.isBlank()) {
+        if (assignee != null
+                && !assignee.isBlank()) {
 
             return incidentRepository
                     .findByAssigneeContainingIgnoreCase(
@@ -163,7 +233,6 @@ public class IncidentService {
                             pageable);
         }
 
-        // Defect C
         if (status != null) {
 
             return incidentRepository
@@ -180,7 +249,7 @@ public class IncidentService {
                             pageable);
         }
 
-        return incidentRepository.findAll(pageable);
+        return incidentRepository.findAll(
+                pageable);
     }
-
 }

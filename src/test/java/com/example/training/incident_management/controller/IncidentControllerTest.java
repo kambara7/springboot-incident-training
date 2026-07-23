@@ -75,6 +75,9 @@ class IncidentControllerTest {
 
         when(incidentService.findAll(
                 isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
                 any()))
                 .thenReturn(page);
 
@@ -167,11 +170,13 @@ class IncidentControllerTest {
     void shouldReturnBadRequestWhenValidationFails()
             throws Exception {
 
-        String requestBody = """
-                {
-                  "description":"Validation test"
-                }
-                """;
+    	String requestBody = """
+    	        {
+    	          "priority":"HIGH",
+    	          "assignee":"Tanaka",
+    	          "occurredAt":"2026-07-22T09:00:00"
+    	        }
+    	        """;
 
         mockMvc.perform(
                 post("/api/incidents")
