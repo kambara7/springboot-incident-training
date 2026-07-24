@@ -17,6 +17,8 @@ public class Incident {
     private String title;
 
     private String description;
+    
+    private String resolvedReason;
 
     private IncidentStatus status;
 
@@ -120,5 +122,13 @@ public class Incident {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+    
+    public String getResolvedReason() {
+        return resolvedReason;  
+    }
+    
+    public void setResolvedReason(String resolvedReason) {
+        this.resolvedReason = resolvedReason;
     }
 }

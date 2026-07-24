@@ -61,7 +61,7 @@ public class IncidentService {
         incident.setPriority(request.getPriority());
         incident.setAssignee(request.getAssignee());
         incident.setOccurredAt(request.getOccurredAt());
-
+        incident.setUpdatedAt(LocalDateTime.now());
         incident.setStatus(IncidentStatus.OPEN);
 
         Incident savedIncident =
@@ -118,6 +118,23 @@ public class IncidentService {
 
             return null;
         }
+        
+        if (request.getStatus() == IncidentStatus.RESOLVED) {
+
+            String reason = request.getResolvedReason();
+
+            if (reason == null || reason.isBlank()) {
+
+                throw new IllegalArgumentException(
+                        "解決理由は必須です");
+            }
+
+            if (reason.length() > 50) {
+
+                throw new IllegalArgumentException(
+                        "解決理由は50文字以内で入力してください");
+            }
+        }
 
         incident.setTitle(request.getTitle());
         incident.setDescription(request.getDescription());
@@ -125,8 +142,8 @@ public class IncidentService {
         incident.setPriority(request.getPriority());
         incident.setAssignee(request.getAssignee());
         incident.setOccurredAt(request.getOccurredAt());
-
-        // Defect B Fix
+        incident.setResolvedReason(
+        		request.getResolvedReason());
         incident.setUpdatedAt(LocalDateTime.now());
 
         Incident savedIncident =
@@ -176,7 +193,16 @@ public class IncidentService {
         response.setStatus(incident.getStatus());
         response.setPriority(incident.getPriority());
         response.setAssignee(incident.getAssignee());
-        response.setOccurredAt(incident.getOccurredAt());
+        response.setResolvedReason(
+                incident.getResolvedReason());
+        response.setOccurredAt(
+                incident.getOccurredAt());
+
+        response.setCreatedAt(
+                incident.getCreatedAt());
+
+        response.setUpdatedAt(
+                incident.getUpdatedAt());
 
         return response;
     }

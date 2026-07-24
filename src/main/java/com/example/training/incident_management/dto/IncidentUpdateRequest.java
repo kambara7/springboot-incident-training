@@ -16,6 +16,8 @@ public class IncidentUpdateRequest {
     private IncidentPriority priority;
 
     private String assignee;
+    
+    private String resolvedReason;
 
     private LocalDateTime occurredAt;
 
@@ -57,6 +59,14 @@ public class IncidentUpdateRequest {
 
     public void setAssignee(String assignee) {
         this.assignee = assignee;
+    }
+    
+    public String getResolvedReason() {
+        return resolvedReason;
+    }
+
+    public void setResolvedReason(String resolvedReason) {
+        this.resolvedReason = resolvedReason;
     }
 
     public LocalDateTime getOccurredAt() {
